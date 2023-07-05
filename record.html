@@ -22,8 +22,8 @@
       <!-- <audio controls class="audio-player"></audio> -->
       <audio class="pre-player" src="./pre.mp3"></audio>
       <audio class="post-player" src="./post.mp3"></audio>
-      <button class="record-btn">录音</button>
-      <button class="play-btn">播放</button>
+      <button class="record-btn">Record</button>
+      <button class="play-btn">Play</button>
       <a id="download" download="record.mp3"></a>
     </div>
   </body>
@@ -47,12 +47,12 @@
             if (mediaRecorder.state === "recording") {
               mediaRecorder.stop();
               prePlayer.pause();
-              recordBtn.textContent = "录音结束";
+              recordBtn.textContent = "End Record";
             } else {
               mediaRecorder.start();
               //播放合成前音频
               prePlayer.play();
-              recordBtn.textContent = "录音中...";
+              recordBtn.textContent = "Recording...";
             }
           };
           mediaRecorder.ondataavailable = (e) => {
@@ -64,7 +64,7 @@
             chunks = [];
             const audioURL = window.URL.createObjectURL(blob);
             // prePlayer.src = audioURL;
-            download.innerHTML = "下载";
+            download.innerHTML = "Download";
             download.href = audioURL;
           };
         },
@@ -79,10 +79,10 @@
     playBtn.onclick = () => {
       if (postPlayer.paused == true) {
         postPlayer.play();
-        playBtn.textContent = "暂停";
+        playBtn.textContent = "Pause";
       } else {
         postPlayer.pause();
-        playBtn.textContent = "播放";
+        playBtn.textContent = "Play";
       }
     };
   </script>
