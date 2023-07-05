@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>音频录制</title>
+    <style>
+      .app {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .record-btn {
+        margin: 0 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- <audio controls class="audio-player"></audio> -->
+      <audio class="pre-player" src="./pre.mp3"></audio>
+      <audio class="post-player" src="./post.mp3"></audio>
+      <button class="record-btn">录音</button>
+      <button class="play-btn">播放</button>
+      <a id="download" download="record.mp3"></a>
+    </div>
+  </body>
+
+  <script>
+    const recordBtn = document.querySelector(".record-btn");
+    //合成前音频，点击 录音 时播放
+    const prePlayer = document.querySelector(".pre-player");
+    //合成后音频，点击 播放 时播放
+    const postPlayer = document.querySelector(".post-player");
+    const playBtn = document.querySelector(".play-btn");
+    const download = document.querySelector("#download");
+    if (navigator.mediaDevices.getUserMedia) {
+      let chunks = [];
+      const constraints = { audio: true };
+      navigator.mediaDevices.getUserMedia(constraints).then(
+        (stream) => {
+          const mediaRecorder = new MediaRecorder(stream);
+          //点击录音
+          recordBtn.onclick = () => {
+            if (mediaRecorder.state === "recording") {
+              mediaRecorder.stop();
+              prePlayer.pause();
+              recordBtn.textContent = "录音结束";
+            } else {
+              mediaRecorder.start();
+              //播放合成前音频
+              prePlayer.play();
+              recordBtn.textContent = "录音中...";
+            }
+          };
+          mediaRecorder.ondataavailable = (e) => {
+            chunks.push(e.data);
+          };
+          //保存录音
+          mediaRecorder.onstop = (e) => {
+            const blob = new Blob(chunks, { type: "audio/mp3; codecs=opus" });
+            chunks = [];
+            const audioURL = window.URL.createObjectURL(blob);
+            // prePlayer.src = audioURL;
+            download.innerHTML = "下载";
+            download.href = audioURL;
+          };
+        },
+        () => {
+          console.error("授权失败！");
+        }
+      );
+    } else {
+      console.error("浏览器不支持 getUserMedia");
+    }
+    //播放合成后音频
+    playBtn.onclick = () => {
+      if (postPlayer.paused == true) {
+        postPlayer.play();
+        playBtn.textContent = "暂停";
+      } else {
+        postPlayer.pause();
+        playBtn.textContent = "播放";
+      }
+    };
+  </script>
+</html>
+
+<!-- 1. 录音同时播放音频，同时obs耳返
+2. 播放完后下载
+3. 下载完后运行py合并音频
+4. 点击播放 -->
